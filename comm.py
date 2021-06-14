@@ -95,16 +95,20 @@ def statis_feature(start_day=1, before_day=7, agg='sum'):
         print(dim)
         user_data = history_data[[dim, "date_"] + FEA_COLUMN_LIST]
         res_arr = []
-        for start in range(start_day, END_DAY-before_day+1):
+        for start in range(start_day, END_DAY - before_day + 1):
             temp = user_data[((user_data["date_"]) >= start) & (user_data["date_"] < (start + before_day))]
             temp = temp.drop(columns=['date_'])
             temp = temp.groupby([dim]).agg([agg]).reset_index()
             temp.columns = list(map(''.join, temp.columns.values))
+            temp['row_sum'] = temp[(temp.columns)[1:-1]].apply(lambda x: x.sum(), axis=1)
+            for column_name in (temp.columns)[1:-1]:
+                temp[column_name] = temp[column_name] / temp['row_sum']
+            temp.drop(columns=['row_sum'], inplace=True)
             temp["date_"] = start + before_day
             res_arr.append(temp)
         dim_feature = pd.concat(res_arr)
-        feature_path = os.path.join(feature_dir, dim+"_feature.csv")
-        print('Save to: %s'%feature_path)
+        feature_path = os.path.join(feature_dir, dim + "_feature.csv")
+        print('Save to: %s' % feature_path)
         dim_feature.to_csv(feature_path, index=False)
 
 
