@@ -101,6 +101,7 @@ def statis_feature(start_day=1, before_day=7, agg='sum'):
             temp = temp.groupby([dim]).agg([agg]).reset_index()
             temp.columns = list(map(''.join, temp.columns.values))
             temp['row_sum'] = temp[(temp.columns)[1:-1]].apply(lambda x: x.sum(), axis=1)
+            temp['row_sum'] = temp['row_sum'].apply(lambda x: max(x, 1))
             for column_name in (temp.columns)[1:-1]:
                 temp[column_name] = temp[column_name] / temp['row_sum']
             temp.drop(columns=['row_sum'], inplace=True)
@@ -218,7 +219,7 @@ def concat_sample(sample_arr, stage="offline_train"):
 
 def main():
     t = time.time()
-    statis_data()
+    # statis_data()
     logger.info('Create dir and check file')
     create_dir()
     flag, not_exists_file = check_file()
