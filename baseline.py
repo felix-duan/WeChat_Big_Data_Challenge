@@ -4,7 +4,7 @@ import os
 import time
 import numpy as np
 import pandas as pd
-import tensorflow.compat.v1 as tf
+import tensorflow as tf
 from tensorflow import feature_column as fc
 from comm import ACTION_LIST, STAGE_END_DAY, FEA_COLUMN_LIST
 from evaluation import uAUC, compute_weighted_score
@@ -13,8 +13,8 @@ from evaluation import uAUC, compute_weighted_score
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('model_checkpoint_dir', './data/model', 'model dir')
-flags.DEFINE_string('root_path', './data/', 'data dir')
+flags.DEFINE_string('model_checkpoint_dir', '../data/model', 'model dir')
+flags.DEFINE_string('root_path', '../data/', 'data dir')
 flags.DEFINE_integer('batch_size', 128, 'batch_size')
 flags.DEFINE_integer('embed_dim', 10, 'embed_dim')
 flags.DEFINE_float('learning_rate', 0.1, 'learning_rate')
