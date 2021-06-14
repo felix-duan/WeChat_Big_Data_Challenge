@@ -98,13 +98,17 @@ def statis_feature(start_day=1, before_day=7, agg='sum'):
         for start in range(start_day, END_DAY - before_day + 1):
             temp = user_data[((user_data["date_"]) >= start) & (user_data["date_"] < (start + before_day))]
             temp = temp.drop(columns=['date_'])
-            temp = temp.groupby([dim]).agg([agg]).reset_index()
-            temp.columns = list(map(''.join, temp.columns.values))
-            temp['row_sum'] = temp[(temp.columns)[1:-1]].apply(lambda x: x.sum(), axis=1)
-            temp['row_sum'] = temp['row_sum'].apply(lambda x: max(x, 1))
+            temp_new = temp.groupby([dim]).agg([agg,"count"]).reset_index()
+            temp_new.columns = list(map(''.join, temp_new.columns.values))
             for column_name in (temp.columns)[1:-1]:
-                temp[column_name] = temp[column_name] / temp['row_sum']
-            temp.drop(columns=['row_sum'], inplace=True)
+                temp_new[column_name + "count"] = temp_new[column_name + "count"].apply(lambda x: max(x, 1))
+                temp[column_name] = temp_new[column_name + "sum"] / temp_new[column_name + "count"]
+            new_name = []
+            for name in temp.columns:
+                new_name.append(name+"sum")
+            temp.columns = new_name
+
+
             temp["date_"] = start + before_day
             res_arr.append(temp)
         dim_feature = pd.concat(res_arr)
