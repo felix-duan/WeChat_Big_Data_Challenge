@@ -98,16 +98,15 @@ def statis_feature(start_day=1, before_day=7, agg='sum'):
         for start in range(start_day, END_DAY - before_day + 1):
             temp = user_data[((user_data["date_"]) >= start) & (user_data["date_"] < (start + before_day))]
             temp = temp.drop(columns=['date_'])
-            temp_new = temp.groupby([dim]).agg([agg,"count"]).reset_index()
+            temp_sum = temp.groupby([dim]).agg(["sum"]).reset_index()
+            temp_sum.columns = list(map(''.join, temp_sum.columns.values))
+            temp_new = temp.groupby([dim]).agg(["sum", "count"]).reset_index()
             temp_new.columns = list(map(''.join, temp_new.columns.values))
-            for column_name in (temp.columns)[1:-1]:
-                temp_new[column_name + "count"] = temp_new[column_name + "count"].apply(lambda x: max(x, 1))
-                temp[column_name] = temp_new[column_name + "sum"] / temp_new[column_name + "count"]
-            new_name = []
-            for name in temp.columns:
-                new_name.append(name+"sum")
-            temp.columns = new_name
 
+            for column_name in FEA_COLUMN_LIST:
+                temp_new[column_name + "count"] = temp_new[column_name + "count"].apply(lambda x: max(x, 1))
+                temp_sum[column_name + "sum"] = (temp_new[column_name + "sum"] / temp_new[column_name + "count"]).apply(lambda x: round(x,5))
+            temp = temp_sum
 
             temp["date_"] = start + before_day
             res_arr.append(temp)
