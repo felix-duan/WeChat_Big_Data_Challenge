@@ -33,7 +33,7 @@ ACTION_SAMPLE_RATE = {"read_comment": 0.2, "like": 0.2, "click_avatar": 0.2, "fo
 # 各个阶段数据集的设置的最后一天
 STAGE_END_DAY = {"online_train": 14, "offline_train": 12, "evaluate": 13, "submit": 15}
 # 各个行为构造训练数据的天数
-ACTION_DAY_NUM = {"read_comment": 5, "like": 5, "click_avatar": 5, "forward": 5, "comment": 5, "follow": 5, "favorite": 5}
+ACTION_DAY_NUM = {"read_comment": 12, "like": 12, "click_avatar": 12, "forward": 12, "comment": 12, "follow": 12, "favorite": 12}
 
 
 def create_dir():
@@ -98,15 +98,8 @@ def statis_feature(start_day=1, before_day=7, agg='sum'):
         for start in range(start_day, END_DAY - before_day + 1):
             temp = user_data[((user_data["date_"]) >= start) & (user_data["date_"] < (start + before_day))]
             temp = temp.drop(columns=['date_'])
-            temp_sum = temp.groupby([dim]).agg(["sum"]).reset_index()
-            temp_sum.columns = list(map(''.join, temp_sum.columns.values))
-            temp_new = temp.groupby([dim]).agg(["sum", "count"]).reset_index()
-            temp_new.columns = list(map(''.join, temp_new.columns.values))
-
-            for column_name in FEA_COLUMN_LIST:
-                temp_new[column_name + "count"] = temp_new[column_name + "count"].apply(lambda x: max(x, 1))
-                temp_sum[column_name + "sum"] = (temp_new[column_name + "sum"] / temp_new[column_name + "count"]).apply(lambda x: round(x,5))
-            temp = temp_sum
+            temp = temp.groupby([dim]).agg(["sum"]).reset_index()
+            temp.columns = list(map(''.join, temp.columns.values))
 
             temp["date_"] = start + before_day
             res_arr.append(temp)
